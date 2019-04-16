@@ -14,13 +14,19 @@ import (
 
 func main() {
 	fmt.Println("Hello I'm a client")
-	certFile := "tls/ca.crt"
-	creds, sslErr := credentials.NewClientTLSFromFile(certFile, "")
-	if sslErr != nil {
-		log.Fatal("Error while loading CA trust certificate: %v", sslErr)
-		return
+
+	tls := false
+	opts := grpc.WithInsecure()
+	if tls {
+		certFile := "tls/ca.crt"
+		creds, sslErr := credentials.NewClientTLSFromFile(certFile, "")
+		if sslErr != nil {
+			log.Fatal("Error while loading CA trust certificate: %v", sslErr)
+			return
+		}
+		opts = grpc.WithTransportCredentials(creds)
 	}
-	opts := grpc.WithTransportCredentials(creds)
+
 	cc, err := grpc.Dial("localhost:50051", opts)
 	if err != nil {
 		log.Fatal("could not connect: %v", err)
